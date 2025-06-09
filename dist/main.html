@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html><!-- 文字コード判別 -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline';"/>
+<title>AssureAce</title>
+<!-- Base style -->
+<link href="./assets/font-awesome/css/font-awesome.css" rel="stylesheet">
+<link href="./assets/css/bootstrap.min.css" rel="stylesheet">
+<link href="./assets/css/plugins/switchery/switchery.css" rel="stylesheet">
+<link href="./assets/css/plugins/toastr/toastr.min.css" rel="stylesheet">
+<link href="./assets/css/reset.css" rel="stylesheet">
+<link href="./assets/css/animate.css" rel="stylesheet">
+<link href="./assets/css/style.css" rel="stylesheet">
+<link href="./assets/css/style_pronto.css" rel="stylesheet">
+<!-- Additional style -->
+<!-- Mainly scripts -->
+<script src="./assets/js/jquery-3.7.1.min.js"></script>
+<script src="./assets/js/bootstrap.min.js"></script>
+<script src="./assets/js/plugins/switchery/switchery.js"></script>
+<script src="./assets/js/plugins/toastr/toastr.min.js"></script>
+<script src="./assets/js/script_pronto.js"></script>
+<script type="module" src="./ipc/renderer.mjs"></script>
+<!-- Additional script -->
+</head>
+<body class=" pace-done">
+<div id="prTag_maskAll" class="prSt_maskAll"></div>
+<div id="prTag_loader" class="prSt_loader">
+ <div class="loader"></div>
+</div>
+
+<div id="wrapper">
+<div id="page-wrapperX" class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight ecommerce" style="padding:0 10px 200px;">
+
+<div class="row">
+<div class="col-sm-12">
+	
+<div class="headerMenu">
+ <div class="col-sm-8" style="padding-left:0; min-width:560px;">
+  <div class="input-group m-b">
+	<span class="input-group-addon">URL</span>
+	<input id="post_url" type="text" class="form-control" value="">
+	<span class="input-group-btn">
+    <button id="btn_launch" type="button" class="btn btn-default">launch</button>
+   </span>
+  </div>
+ </div>
+ <div class="col-sm-4">
+  <div class="pull-right">
+   <label class="" style="line-height:32px;">Play</label>
+   <button id="btn_play" type="button" class="btn btn-circle btn-outline btn-success" style="width:32px; height:32px; margin-left:5px;">
+    <i id="fa_play" class="fa fa-play" style="margin-left:3px; font-size:16px;"></i>
+   </button>
+   <label aria-label="stop" class="" style="margin-left:40px; margin-right:5px;">Record<br>ON/OFF</label>
+   <input id="btn_record" type="checkbox" class="js-switch"/>
+  </div>
+ </div>
+</div>
+
+<div class="ibox float-margins">
+ <div class="ibox-title">
+  <h5>TestCase - <bdo id="id_title">Untitled</bdo></h5>
+  <!--<div class="ibox-tools">
+   <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+  </div>-->
+ </div>
+ <div class="ibox-content ibox-heading" style="border-top:1px solid #e7eaec; border-bottom:1px solid #e7eaec;">
+  <h3>Test Steps</h3>
+  <small>There are <bdo id="id_stepNum" style="font-weight:bold; color:indianred;">0</bdo> steps in <bdo id="id_title2" style="font-weight:bold;">Untitled</bdo>.</small>
+ </div>
+ <div class="ibox-content">
+
+<table class="table table-hover">
+<thead>
+<tr style="font-weight:bold;">
+ <th style="width:40px;">No.</th>
+ <th>Action</th>
+ <th class="text-right"></th>
+ <th class="text-right" style="width:30px;"></th>
+</tr>
+</thead>
+<tbody id="id_steps">
+</tbody>
+</table>
+
+</div><!-- ibox-content -->
+</div><!-- ibox -->
+</div><!-- col-lg-12 -->
+</div><!-- row -->
+
+</div><!-- wrapper-content -->
+</div><!-- page-wrapper -->
+
+<!-- footer -->
+<div class="footer">
+<div class="text-right">
+ <strong>Copyright</strong> (c) 2025 Assure Ace</div>
+</div>
+<!-- footer -->
+
+</div><!-- wrapper -->
+
+<!-- modal -->
+<div class="modal inmodal" id="myModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal-dialog">
+<div class="modal-content animated fadeInDown">
+<!-- modal-header -->
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+<!--<i class="fa fa-clock-o modal-icon"></i>-->
+<h4 class="modal-title">Stepの編集</h4>
+<small id="StepHeader" class="font-bold">ID: <span id="np_Id">1</span> / Browser: <span id="np_BrowserNo">1</span> / Tab: <span id="np_TabNo">1</span> / Event: <span id="np_EventType">Click</span></small>
+</div><!-- modal-header -->
+
+<form id="form_editTestStep" name="form_editTestStep" method="post" role="form">
+<!-- modal-body -->
+<div class="modal-body">
+<div><span class="strong">Target：</span><span id="np_TagName" style="padding-left:10px; font-size:16px; color:indianred;"></span></div>
+<table class="table no-margins no-borders align-middle">
+<tbody>
+<tr>
+ <td class="col-md-2">
+  <input id="post_SelType1" type="radio" name="post_SelType" value="1" checked>
+  <label class="c-in" for="post_SelType1">text</label>
+ </td>
+ <td class="col-md-8"><input id="post_SelType1_val" type="text" name="post_SelType1_val" class="form-control" placeholder="対象のテキスト文字列" value=""></td>
+ <td class="col-md-2"><span style="font-size:9px;">※推奨</span></td>
+</tr>
+<tr>
+ <td>
+  <input id="post_SelType2" type="radio" name="post_SelType" value="2">
+  <label class="c-in" for="post_SelType2">id</label>
+ </td>
+ <td><input id="post_SelType2_val" type="text" name="post_SelType2_val" class="form-control" placeholder="対象のタグのid" value=""></td>
+ <td></td>
+</tr>
+<tr>
+ <td>
+  <input id="post_SelType3" type="radio" name="post_SelType" value="3">
+  <label class="c-in" for="post_SelType3">name</label>
+ </td>
+ <td><input id="post_SelType3_val" type="text" name="post_SelType3_val" class="form-control" placeholder="対象のタグのname" value=""></td>
+ <td><span style="font-size:9px; color:indianred;">※同じname</span></td>
+</tr>
+</tbody>
+</table>
+
+<div id="sup" class="m-t"><span id="sup_s">＋</span>補足</div>
+<div id="sup_c" style="display:none;">
+<div class="">
+ <input id="post_Enable1" type="checkbox" name="post_Enable1" value="1" style="margin:0;">
+ <label class="c-in">value</label>
+ <input id="post_Value" type="text" name="post_Value" placeholder="" class="form-control">
+</div>
+<div class="">
+ <input id="post_Enable1" type="checkbox" name="post_Enable1" value="1" style="margin:0;">
+ <label>label</label>
+ <input id="post_Label" type="text" name="post_Label" placeholder="" class="form-control">
+</div>
+<div class="">
+ <input id="post_Enable1" type="checkbox" name="post_Enable1" value="1" style="margin:0;">
+ <label>dataId</label>
+ <input id="post_DataId" type="text" name="post_DataId" placeholder="" class="form-control">
+</div>
+</div>
+
+<div class="bline" style="margin-top:15px;"></div>
+
+<div class="m-t">
+ <label class="strong">入力</label>
+ <textarea id="post_Enter" name="post_Enter" placeholder="" class="form-control"></textarea>
+</div>
+
+<div class="bline" style="margin-top:15px;"></div>
+
+<div class="m-t">
+ <input id="post_Enable1" type="checkbox" name="post_Enable1" value="1" style="margin:0;">
+ <label class="c-in strong" for="post_Enable1">Text Selector</label>
+ <textarea id="post_Selector1" name="post_Selector1" placeholder="Enter your email" class="form-control"></textarea>
+</div>
+<div class="m-t">
+ <input id="post_Enable2" type="checkbox" name="post_Enable2" value="1" style="margin:0;">
+ <label class="c-in strong" for="post_Enable2">Css Selector</label>
+ <textarea id="post_Selector2" name="post_Selector2" placeholder="Enter your email" class="form-control"></textarea>
+</div>
+<!--
+<div class="m-t">
+ <label class="c-in strong">Test Scripts</label>
+ <textarea id="post_Scripts" name="post_Scripts" placeholder="Enter your email" class="form-control"></textarea>
+</div>
+-->
+</div><!-- modal-body -->
+<!-- footer -->
+<input type="hidden" id="post_id" name="post_id" value="0">
+<div class="modal-footer">
+<button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+<button type="submit" class="btn btn-primary">Save changes</button>
+</div><!-- modal-footer -->
+</form>
+
+</div><!-- modal-content -->
+</div><!-- modal-dialog -->
+</div><!-- modal -->
+
+<!-- modalSp -->
+<div class="modal inmodal" id="myModalSp" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal-dialog">
+<div class="modal-content animated fadeInDown">
+<!-- modal-header -->
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+<!--<i class="fa fa-clock-o modal-icon"></i>-->
+<h4 class="modal-title">Stepの編集</h4>
+<small id="StepHeaderSp" class="font-bold">ID: <span id="sp_np_Id">1</span> / Browser: <span id="sp_np_BrowserNo">1</span> / Tab: <span id="sp_np_TabNo">1</span> / Event: <span id="sp_np_EventType">Click</span></small>
+</div><!-- modal-header -->
+
+<form id="form_editTestStepSp" name="form_editTestStepSp" method="post" role="form">
+<!-- modal-body -->
+<div class="modal-body">
+
+<div class="">
+ <label class="strong">browser</label>
+ <input id="sp_post_BrowserNo" type="text" name="sp_post_BrowserNo" placeholder="" style="width:50px;">
+ <label class="strong" style="margin-left:20px;">tab</label>
+ <input id="sp_post_TabNo" type="text" name="sp_post_TabNo" placeholder="" style="width:50px;">
+</div>
+
+<div class="bline" style="margin-top:15px;"></div>
+
+<div class="m-t">
+ <label class="strong">sleep</label>
+ <input id="sp_post_Sleep" type="text" name="sp_post_Sleep" placeholder="" style="width:50px;"> ms
+</div>
+
+<div class="bline" style="margin-top:15px;"></div>
+
+<div class="m-t">
+ <label class="strong">check steps</label>
+ <textarea id="sp_post_CheckSteps" name="sp_post_CheckSteps" placeholder="" class="form-control"></textarea>
+</div>
+
+</div><!-- modal-body -->
+<!-- footer -->
+<input type="hidden" id="sp_post_id" name="sp_post_id" value="0">
+<div class="modal-footer">
+<button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+<button type="submit" class="btn btn-primary">Save changes</button>
+</div><!-- modal-footer -->
+</form>
+
+</div><!-- modal-content -->
+</div><!-- modal-dialog -->
+</div><!-- modal -->
+
+<!-- modal settings -->
+<div class="modal inmodal" id="myModalSettings" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal-dialog">
+<div class="modal-content animated fadeInDown">
+<!-- modal-header -->
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+<h4 class="modal-title">設定</h4>
+</div><!-- modal-header -->
+<form id="form_editSettings" name="form_editSettings" method="post" role="form">
+<!-- modal-body -->
+<div class="modal-body" style="display: flow-root;">
+
+<div style="font-size:14px;"><strong>デフォルトのブラウザ</strong></div>
+<div class="bline" style="margin-bottom:10px;"></div>
+
+<dl style="padding:5px;">
+ <dt style="width:80px;">Puppeteer</dt>
+ <dd>
+  <input id="post_browserType1" type="radio" name="post_browserType" value="1" checked>
+  <label class="r-in" for="post_browserType1">Chrome</label>
+ </dd>
+ <dt style="width:80px;">Playwright</dt>
+ <dd>
+  <input id="post_browserType2" type="radio" name="post_browserType" value="2">
+  <label class="r-in" for="post_browserType2">Chrome</label>
+  <input id="post_browserType3" type="radio" name="post_browserType" value="3">
+  <label class="r-in" for="post_browserType3">Edge</label>
+  <input id="post_browserType4" type="radio" name="post_browserType" value="4">
+  <label class="r-in" for="post_browserType4">FireFox</label>
+ </dd>
+</dl>
+
+</div><!-- modal-body -->
+<!-- footer -->
+<div class="modal-footer">
+<button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+<button type="submit" class="btn btn-primary">Save changes</button>
+</div><!-- modal-footer -->
+</form>
+
+</div><!-- modal-content -->
+</div><!-- modal-dialog -->
+</div><!-- modal -->
+
+<script>
+var switchery;
+$(function(){
+	var ele = document.querySelector(".js-switch");
+	switchery = new Switchery(ele, {color:"#ED5565"});
+	toastr.options = {
+		"closeButton": true,
+		//"positionClass": "toast-top-full-width",
+		"showDuration": "400",
+		"timeOut": "1000",
+		"onclick": null
+	};
+	toggle("sup", "sup_s", "sup_c");
+
+	var ajax = new PRAjaxIPC();
+	ajax.setAfter(function(){
+		$("#myModal").modal("hide");
+	});
+	ajax.onSubmit("#form_editTestStep", "editTestStep");
+	var ajax2 = new PRAjaxIPC();
+	ajax2.setAfter(function(){
+		$("#myModalSettings").modal("hide");
+	});
+	ajax2.onSubmit("#form_editSettings", "editSettings");
+	var ajax3 = new PRAjaxIPC();
+	ajax3.setAfter(function(){
+		$("#myModalSp").modal("hide");
+	});
+	ajax.onSubmit("#form_editTestStepSp", "editTestStepSp");
+});
+
+function toggle(id, swId, conId){
+	var ele = $("#"+id);
+	var sw = $("#"+swId);
+	var content = $("#"+conId);
+	ele.css({"color":"blue", "cursor":"pointer"});
+	ele.on("click", function(){
+		content.slideToggle(300, function(){
+			if(content.is(":visible")){
+				sw.text("－");
+			}else{
+				sw.text("＋");
+			}
+		});
+	});
+}
+
+function play(){
+	const ele = $("#btn_record");
+	if(!ele) return;
+
+	var loader = new PRLoader();
+	loader.mask();
+	ele.prop("checked", false);
+	switchery.setPosition();
+}
+function pause(st){
+	const ele = $("#fa_play");
+	if(st){
+		ele.attr({"class":"fa fa-pause", "style":"font-size:16px;"});
+	}else{
+		ele.attr({"class":"fa fa-play", "style":"margin-left:3px; font-size:16px;"});
+	}
+}
+function stop(){
+	const ele = $("#fa_play");
+	ele.attr({"class":"fa fa-play", "style":"margin-left:3px; font-size:16px;"});
+	var loader = new PRLoader();
+	loader.unmask();
+}
+
+const lineTag = ((id, lineStr) => {
+	return `<tr id="id_step_${id}">
+ <td class="text-center">${id}</td>
+ <td>${lineStr}</td>
+ <td class="text-right"><span class="label label-default">Enable</span></td>
+ <td class="text-right">
+  <div class="btn-group text-center" style="width:15px;">
+   <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+    <i class="fa fa-ellipsis-v"></i>
+   </a>
+   <ul class="dropdown-menu dropdown-alerts" style="margin:20px 0 0 -200px;">
+    <li><a id="id_update_${id}"><div>編集</div></a></li>
+    <li><a id="id_addSleep_${id}">すぐ下に sleep を追加</a></li>
+    <li><a id="id_addSS_${id}">すぐ下に screen shot を追加</a></li>
+    <li><a id="id_addCheck_${id}">すぐ下に check step を追加</a></li>
+    <li class="divider"></li>
+    <li><a id="id_delete_${id}"><span style="font-weight:bold; color:indianred;">DELETE</span></a></li>
+    <li style="height:10px;"></li>
+   </ul>
+  </div>
+ </td>
+</tr>`;
+});
+function addLine(id, num, lineStr, followId){
+	const tag = lineTag(id, lineStr);
+	var eleId = "id_steps";
+	var position = "beforeend";
+	position = "append";
+	if(followId){
+		eleId = "id_step_" + followId;
+		position = "afterend";
+		position = "after";
+	}
+	/*var ele = document.getElementById(eleId);
+	if(ele) ele.insertAdjacentHTML(position, tag);*/
+	var ele = $("#"+eleId);
+	if(ele) ele[position](tag);
+	$("#id_stepNum").text(num);
+
+	const acts = [
+		{suffix:"update", step:0, modal:true},
+		{suffix:"addSleep", step:1, modal:true},
+		{suffix:"addSS", step:2, modal:true},
+		{suffix:"addCheck", step:3, modal:true},
+		{suffix:"delete", step:4, modal:false}
+	];
+	acts.forEach(({suffix, step, modal}) => {
+		$(`#id_${suffix}_${id}`).on("click", function(){
+			window.AABridge.menuTestStep(id, step).then((res) => {
+				if(res.message) msgSuccess(res.message);
+				if(modal) openStepModal(id, res.op);
+				//console.log(res);
+			}).catch((err) => {});
+		});
+	});
+}
+function removeLine(id, num){
+	$("#id_step_"+id).remove();
+	$("#id_stepNum").text(num);
+}
+function allClear(title, num){
+	$("#id_title").text(title);
+	$("#id_title2").text(title);
+	$("#id_stepNum").text(num);
+	$("#id_steps").find("*").off();
+	$("#id_steps").empty();
+}
+function setTitle(title){
+	$("#id_title").text(title);
+	$("#id_title2").text(title);
+}
+
+function openModal(id){
+	$(`#${id}`).modal("show");
+}
+function closeModal(){
+	$(`#${id}`).modal("hide");
+}
+function openSettingsModal(playerNo){
+	$("#post_browserType"+playerNo).prop("checked", true);
+	$("#myModalSettings").modal("show");
+}
+function openStepModal(id, op){
+	if(!op) return;
+	if((op.eventType == "sleep")||(op.eventType == "screenshot")||(op.eventType == "check")){
+		openStepModalSp(id, op);
+		return;
+	}else if((op.eventType == "closewin")||(op.eventType == "closetab")){
+		return;
+	}
+	$("#post_id").val(op.id);
+	$("#np_Id").text(op.id);
+	$("#np_BrowserNo").text(op.browserNo);
+	$("#np_TabNo").text(op.tabNo);
+	$("#np_EventType").text(op.eventType);
+	if(op.eventType == "fill") $("#post_Enter").val(op.params);
+	if(op.context){
+		$("#np_TagName").text(op.context.tagName);
+		$("#post_SelType1_val").val(op.context.text);
+		$("#post_SelType2_val").val(op.context.id);
+		$("#post_SelType3_val").val(op.context.name);
+		$("#post_Value").val(op.context.value);
+		$("#post_Label").val(op.context.label);
+		$("#post_DataId").val(op.context.dataId);
+		//$("#post_OffsetX").val(op.context.offsetX);
+		//$("#post_OffsetY").val(op.context.offsetY);
+	}
+	$("#post_SelType").val(op.selType);
+	$("#post_Selector1").val(op.selector1);
+	$("#post_Selector2").val(op.selector2);
+	$("#post_Enable1").prop("checked", op.enable1);
+	$("#post_Enable2").prop("checked", op.enable2);
+	//$("#post_Scripts").val(op.scripts);
+	$("#myModal").modal("show");
+}
+function openStepModalSp(id, op){
+	$("#sp_post_id").val(op.id);
+	$("#sp_np_Id").text(op.id);
+	$("#sp_np_BrowserNo").text(op.browserNo);
+	$("#sp_np_TabNo").text(op.tabNo);
+	$("#sp_np_EventType").text(op.eventType);
+	$("#sp_post_BrowserNo").val(op.browserNo);
+	$("#sp_post_TabNo").val(op.tabNo);
+	$("#sp_post_Sleep").val(op.params);
+	$("#sp_post_CheckSteps").val(op.scripts);
+	$("#myModalSp").modal("show");
+}
+
+function msgSuccess(msg, title){
+	toastr.info(msg, title);
+}
+function msgError(msg, title){
+	toastr.error(msg, title);
+}
+function msgAlert(msg){
+	alert(msg);
+	window.focus();
+}
+function msgConfirm(msg){
+	return window.confirm(msg);
+}
+</script>
+</body>
+</html>
