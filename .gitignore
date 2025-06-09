@@ -33,3 +33,4 @@ Thumbs.db
 # その他のキャッシュや出力
 .cache/
 coverage/
+*.b
