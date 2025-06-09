@@ -1,0 +1,35 @@
+# node_modules: 依存ライブラリ
+node_modules/
+
+# 出力ディレクトリ（tsconfig.json の "outDir" に一致）
+dist/
+!dist/assets/
+!dist/main.html
+!dist/settings.json
+build/
+tmp/
+
+# TypeScript キャッシュ
+*.tsbuildinfo
+
+# ログファイル
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS／エディタ依存ファイル
+.DS_Store
+Thumbs.db
+
+# VSCode 設定
+.vscode/
+*.code-workspace
+
+# 環境変数ファイル（必要に応じて）
+.env
+.env.*
+
+# その他のキャッシュや出力
+.cache/
+coverage/
