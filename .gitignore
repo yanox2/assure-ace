@@ -2,6 +2,10 @@
 node_modules/
 
 # 出力ディレクトリ（tsconfig.json の "outDir" に一致）
+dist/
+!dist/assets/
+!dist/main.html
+!dist/settings.json
 build/
 tmp/
 
