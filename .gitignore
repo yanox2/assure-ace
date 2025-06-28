@@ -5,7 +5,6 @@ node_modules/
 dist/
 !dist/assets/
 !dist/main.html
-!dist/settings.json
 build/
 tmp/
 
@@ -19,6 +18,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # OS／エディタ依存ファイル
+.claude
 .DS_Store
 Thumbs.db
 
