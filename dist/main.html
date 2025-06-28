@@ -124,27 +124,27 @@
 <tbody>
 <tr>
  <td class="col-md-2">
-  <input id="post_SelType1" type="radio" name="post_SelType" value="1" checked>
-  <label class="c-in" for="post_SelType1">text</label>
+  <input id="post_SelType1" type="checkbox" name="post_SelType1" value="1">
+  <label class="c-in" for="post_SelType1">id</label>
  </td>
- <td class="col-md-8"><input id="post_SelType1_val" type="text" name="post_SelType1_val" class="form-control" placeholder="対象のテキスト文字列" value=""></td>
- <td class="col-md-2"><span style="font-size:9px;">※推奨</span></td>
-</tr>
-<tr>
- <td>
-  <input id="post_SelType2" type="radio" name="post_SelType" value="2">
-  <label class="c-in" for="post_SelType2">id</label>
- </td>
- <td><input id="post_SelType2_val" type="text" name="post_SelType2_val" class="form-control" placeholder="対象のタグのid" value=""></td>
+ <td class="col-md-8"><input id="post_SelType1_val" type="text" name="post_SelType1_val" class="form-control" placeholder="対象のタグのid" value=""></td>
  <td></td>
 </tr>
 <tr>
  <td>
-  <input id="post_SelType3" type="radio" name="post_SelType" value="3">
+  <input id="post_SelType2" type="checkbox" name="post_SelType2" value="1">
+  <label class="c-in" for="post_SelType2">text</label>
+ </td>
+ <td><input id="post_SelType2_val" type="text" name="post_SelType2_val" class="form-control" placeholder="対象のテキスト文字列" value=""></td>
+ <td class="col-md-2"><span style="font-size:9px;">※推奨</span></td>
+</tr>
+<tr>
+ <td>
+  <input id="post_SelType3" type="checkbox" name="post_SelType3" value="1">
   <label class="c-in" for="post_SelType3">name</label>
  </td>
- <td><input id="post_SelType3_val" type="text" name="post_SelType3_val" class="form-control" placeholder="対象のタグのname" value=""></td>
- <td><span style="font-size:9px; color:indianred;">※同じname</span></td>
+ <td class="col-md-8"><input id="post_SelType3_val" type="text" name="post_SelType3_val" class="form-control" placeholder="対象のタグのname" value=""></td>
+ <td class="col-md-2"><span style="font-size:9px; color:indianred;">※同じname</span></td>
 </tr>
 </tbody>
 </table>
@@ -152,19 +152,24 @@
 <div id="sup" class="m-t"><span id="sup_s">＋</span>補足</div>
 <div id="sup_c" style="display:none;">
 <div class="">
- <input id="post_Enable1" type="checkbox" name="post_Enable1" value="1" style="margin:0;">
- <label class="c-in">value</label>
- <input id="post_Value" type="text" name="post_Value" placeholder="" class="form-control">
+ <input id="post_SelType4" type="checkbox" name="post_SelType4" value="1" style="margin:0;">
+ <label class="c-in" for="post_SelType4">type</label>
+ <input id="post_SelType4_val" type="text" name="post_SelType4_val" placeholder="" class="form-control">
 </div>
 <div class="">
- <input id="post_Enable1" type="checkbox" name="post_Enable1" value="1" style="margin:0;">
- <label>label</label>
- <input id="post_Label" type="text" name="post_Label" placeholder="" class="form-control">
+ <input id="post_SelType5" type="checkbox" name="post_SelType5" value="1" style="margin:0;">
+ <label class="c-in" for="post_SelType5">value</label>
+ <input id="post_SelType5_val" type="text" name="post_SelType5_val" placeholder="" class="form-control">
 </div>
 <div class="">
- <input id="post_Enable1" type="checkbox" name="post_Enable1" value="1" style="margin:0;">
- <label>dataId</label>
- <input id="post_DataId" type="text" name="post_DataId" placeholder="" class="form-control">
+ <input id="post_SelType6" type="checkbox" name="post_SelType6" value="1" style="margin:0;">
+ <label class="c-in" for="post_SelType6">label</label>
+ <input id="post_SelType6_val" type="text" name="post_SelType6_val" placeholder="" class="form-control">
+</div>
+<div class="">
+ <input id="post_SelType7" type="checkbox" name="post_SelType7" value="1" style="margin:0;">
+ <label class="c-in" for="post_SelType7">dataId</label>
+ <input id="post_SelType7_val" type="text" name="post_SelType7_val" placeholder="" class="form-control">
 </div>
 </div>
 
@@ -456,36 +461,95 @@ function openSettingsModal(playerNo){
 }
 function openStepModal(id, op){
 	if(!op) return;
+	initStepModal(op.id);
+
 	if((op.eventType == "sleep")||(op.eventType == "screenshot")||(op.eventType == "check")){
 		openStepModalSp(id, op);
 		return;
 	}else if((op.eventType == "closewin")||(op.eventType == "closetab")){
 		return;
 	}
-	$("#post_id").val(op.id);
-	$("#np_Id").text(op.id);
+
+	// subtitleの設定
 	$("#np_BrowserNo").text(op.browserNo);
 	$("#np_TabNo").text(op.tabNo);
 	$("#np_EventType").text(op.eventType);
-	if(op.eventType == "fill") $("#post_Enter").val(op.params);
+
+	// contextの設定
 	if(op.context){
 		$("#np_TagName").text(op.context.tagName);
-		$("#post_SelType1_val").val(op.context.text);
-		$("#post_SelType2_val").val(op.context.id);
+		$("#post_SelType1_val").val(op.context.id);
+		$("#post_SelType2_val").val(op.context.text);
 		$("#post_SelType3_val").val(op.context.name);
+		$("#post_SelType4_val").val(op.context.type);
+		$("#post_SelType5_val").val(op.context.value);
+		$("#post_SelType6_val").val(op.context.label);
+		$("#post_SelType7_val").val(op.context.dataId);
 		$("#post_Value").val(op.context.value);
 		$("#post_Label").val(op.context.label);
 		$("#post_DataId").val(op.context.dataId);
 		//$("#post_OffsetX").val(op.context.offsetX);
 		//$("#post_OffsetY").val(op.context.offsetY);
+		if(op.requiredItems){
+			$("#post_SelType1").prop("checked", !!op.requiredItems.id);
+			$("#post_SelType2").prop("checked", !!op.requiredItems.text);
+			$("#post_SelType3").prop("checked", !!op.requiredItems.name);
+			$("#post_SelType4").prop("checked", !!op.requiredItems.type);
+			$("#post_SelType5").prop("checked", !!op.requiredItems.value);
+			$("#post_SelType6").prop("checked", !!op.requiredItems.label);
+			$("#post_SelType7").prop("checked", !!op.requiredItems.dataId);
+		}
 	}
-	$("#post_SelType").val(op.selType);
-	$("#post_Selector1").val(op.selector1);
-	$("#post_Selector2").val(op.selector2);
-	$("#post_Enable1").prop("checked", op.enable1);
-	$("#post_Enable2").prop("checked", op.enable2);
+
+	// 入力値の設定
+	if(op.eventType == "fill") $("#post_Enter").val(op.params);
+
+	// selectorの設定
+	if(op.requiredSelectors){
+		$("#post_Selector1").val(op.selector1);
+		$("#post_Selector2").val(op.selector2);
+		$("#post_Enable1").prop("checked", !!op.requiredSelectors.selector1);
+		$("#post_Enable2").prop("checked", !!op.requiredSelectors.selector2);
+	}
+
 	//$("#post_Scripts").val(op.scripts);
 	$("#myModal").modal("show");
+}
+function initStepModal(id){
+	$("#post_id").val(id);
+	$("#np_Id").text(id);
+	$("#np_BrowserNo").text("");
+	$("#np_TabNo").text("");
+	$("#np_EventType").text("");
+
+	$("#np_TagName").text("");
+	$("#post_SelType1_val").val("");
+	$("#post_SelType2_val").val("");
+	$("#post_SelType3_val").val("");
+	$("#post_SelType4_val").val("");
+	$("#post_SelType5_val").val("");
+	$("#post_SelType6_val").val("");
+	$("#post_SelType7_val").val("");
+	$("#post_Value").val("");
+	$("#post_Label").val("");
+	$("#post_DataId").val("");
+	//$("#post_OffsetX").val("");
+	//$("#post_OffsetY").val("");
+
+	$("#post_SelType1").prop("checked", false);
+	$("#post_SelType2").prop("checked", false);
+	$("#post_SelType3").prop("checked", false);
+	$("#post_SelType4").prop("checked", false);
+	$("#post_SelType5").prop("checked", false);
+	$("#post_SelType6").prop("checked", false);
+	$("#post_SelType7").prop("checked", false);
+
+	$("#post_Enter").val("");
+
+	$("#post_Selector1").val("");
+	$("#post_Selector2").val("");
+	$("#post_Enable1").prop("checked", false);
+	$("#post_Enable2").prop("checked", false);
 }
 function openStepModalSp(id, op){
 	$("#sp_post_id").val(op.id);

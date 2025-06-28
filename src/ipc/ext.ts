@@ -23,25 +23,27 @@ document.body.addEventListener("click", listener);
 document.body.addEventListener("change", listener);
 
 function listener(e: Event){
-	const tupleVals: string[]|null = Selector.getEventValue(e);
-	if(tupleVals === null) return;
-	const [evType, evVal] = tupleVals;
+	const vals: string[]|null = Selector.getEventValue(e);
+	if(vals === null) return;
+	const [evType, evVal] = vals;
 
 	const ins: Selector = new Selector(e);
 	const ec: EventContext|null = ins.getCurrentEvent();
 	if(!ec) return;
-	const eItems: Map<string, boolean>|null = ins.requiredItems(ec);
+	const eItems: Record<string, boolean>|null = ins.requiredItems(ec);
 	if(!eItems) return;
+	const eSels: Record<string, boolean>|null = {selector1:true, selector2:true};
 
 	try{
 		ins.setContext(ec);
 		const s1: string = ins.generate();
 		const s2: string = ins.generatePrecisely();
 		if(!s1) return;
+
 		const op: Operation = {
 			version: vers, id:0, browserNo:browserNo, tabNo:tabNo,
 			eventType:evType, params:evVal, context:ec,
-			requiredItems:eItems, selector1:s1, selector2:s2, scripts:""
+			selector1:s1, selector2:s2, requiredItems:eItems, requiredSelectors:eSels, scripts:""
 		};
 		LOG(JSON.stringify(op));
 		ws.send(JSON.stringify(op));
@@ -120,22 +122,22 @@ class Selector{
 		return context;
 	}
 
-	public requiredItems(context: EventContext): Map<string, boolean>|null{
-		let eItems = new Map<string, boolean>();
+	public requiredItems(context: EventContext): Record<string, boolean>|null{
+		let eItems: Record<string, boolean> = {};
 		let required: boolean = true;
 		if(context.id){
-			eItems.set("id", true);
+			eItems["id"] = true;
 			required = false;
 		}
 		if(context.text){
-			eItems.set("text", true);
+			eItems["text"] = true;
 			required = false;
 		}
-		if(context.name) eItems.set("name", required);
-		if(context.inputType) eItems.set("type", required);
-		if(context.value) eItems.set("value", required);
-		if(context.label) eItems.set("label", required);
-		if(context.dataId) eItems.set("dataId", required);
+		if(context.name) eItems["name"] = required;
+		if(context.type) eItems["type"] = required;
+		if(context.value) eItems["value"] = required;
+		if(context.label) eItems["label"] = required;
+		if(context.dataId) eItems["dataId"] = required;
 		return eItems;
 	}
 
@@ -252,13 +254,13 @@ class Selector{
 	private _parseTarget(target: Element): EventContext|null{
 		const ignoredTagsForText: string[] = ["form", "xxx"]; // text()を無視するタグ
 		let context: EventContext = {
-			tagName:"", inputType:"", id:"", text:"", name:"", value:"", label:"", dataId:"",
+			tagName:"", id:"", text:"", name:"", type:"", value:"", label:"", dataId:"",
 			offsetX:0, offsetY:0
 		};
 		let ele: any = undefined;
 		if(target instanceof HTMLInputElement){
 			ele = target as HTMLInputElement;
-			if(ele.type) context.inputType = ele.type;
+			if(ele.type) context.type = ele.type;
 		}else if(target instanceof HTMLSelectElement){
 			ele = target as HTMLSelectElement;
 		}else if(target instanceof HTMLTextAreaElement){
@@ -305,7 +307,7 @@ class Selector{
 		// value
 		const isValid = (context: EventContext): boolean => {
 			const sysControlled: string[] = ["checkbox", "radio", "button", "submit", "image", "reset"];
-			return (sysControlled.includes(context.inputType)
+			return (sysControlled.includes(context.type)
 				||(context.tagName === "option")||(context.tagName === "button"));
 		};
 		if((context.value)&&(isValid(context))){
@@ -321,21 +323,21 @@ class Selector{
 	}
 
 	private _getXPath(context: EventContext): string{
-		const eItems: Map<string, boolean>|null = this.requiredItems(context);
+		const eItems: Record<string, boolean>|null = this.requiredItems(context);
 		if(!eItems) return "";
 
 		const attributeMap: Record<string, string> = {
 			id: `@id="${context.id}"`,
 			text: `text()="${context.text}"`,
 			name: `name="${context.name}"`,
-			type: `@type="${context.inputType}"`,
+			type: `@type="${context.type}"`,
 			value: `@value="${context.value}"`,
 			label: `@aria-label="${context.label}"`,
 			dataId: `@data-id="${context.dataId}"`
 		};
 
 		let selector = `${context.tagName}`;
-		for(const [key, value] of eItems){
+		for(const [key, value] of Object.entries(eItems)){
 			if((value)&&(key in attributeMap)){
 				selector += `[${attributeMap[key]}]`;
 			}
@@ -432,12 +434,13 @@ class Selector{
 			eventType: "change",
 			params: "",
 			context: {
-				tagName:"textarea", id:"id_Area1", text:"入力項目", name:"name_Area1", value:"テスト",
-				label:"", dataId:"", inputType:"", offsetX:10, offsetY:20
+				tagName:"textarea", id:"id_Area1", text:"入力項目", name:"name_Area1", type:"", value:"テスト",
+				label:"", dataId:"", offsetX:10, offsetY:20
 			},
-			requiredItems: new Map<string, boolean>([["id", true]]),
 			selector1: '::-p-xpath(//*[@id=\\"id_textArea1\\"])',
 			selector2: '#id_textArea1',
+			requiredItems: {"id":true},
+			requiredSelectors: {"selector1":true, "selector2":true},
 			scripts: ""
 		};
 		return op;

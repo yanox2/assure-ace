@@ -215,8 +215,8 @@ class ScriptBuilder implements BrowserCloseListener{
  *---------------------------------------------------------------------------*/
 	public async menuTestStep<T>(orgId: number, menu: number, adds?: T): Promise<Operation|undefined>{
 		let op: Operation|undefined = {
-			version: VERSION, id: 0, browserNo: 1, tabNo: 1, eventType: "", params: "", context: null,
-			requiredItems:null, selector1: "", selector2: "", scripts: ""
+			version:VERSION, id:0, browserNo:1, tabNo:1, eventType:"", params:"", context:null,
+			selector1:"", selector2:"", requiredItems:null, requiredSelectors:null, scripts:""
 		};
 		const no = this.ids_.indexOf(orgId);
 
@@ -292,7 +292,7 @@ class ScriptBuilder implements BrowserCloseListener{
 		if(!source) source = op.context.name;
 		if(!source) source = op.context.text;
 		let icon: string|undefined = this.icons_.get(op.context.tagName);
-		if(op.context.inputType) icon = this.icons_.get(op.context.inputType);
+		if(op.context.type) icon = this.icons_.get(op.context.type);
 		if(!icon) icon = "fa-code";
 		lineStr = `<i class="fa ${icon}"></i> ${tagName} の<code>${source}</code>を${action}`;
 		return lineStr + browserStr;
@@ -314,48 +314,95 @@ class ScriptBuilder implements BrowserCloseListener{
  * for Sub menu posted
  *---------------------------------------------------------------------------*/
 	public async editTestStep(data: Record<string, unknown>): Promise<number>{
-		const crrt: Operation|undefined = this.steps_.get(data["post_id"] as number);
+		const crrt: Operation|undefined = this.steps_.get(Number(data["post_id"]));
+		Exception.log(data);
 		Exception.log(crrt);
 		if(!crrt) return -1;
 		if(!crrt.context) return -1;
+
+		// contextの生成
 		const postcon = {
-				text: data["post_SelType1_val"] as string,
-				id: data["post_SelType2_val"] as string,
+				id: data["post_SelType1_val"] as string,
+				text: data["post_SelType2_val"] as string,
 				name: data["post_SelType3_val"] as string,
-				value: data["post_Value"] as string,
-				label: data["post_Label"] as string,
-				dataId: data["post_DataId"] as string
+				type: data["post_SelType4_val"] as string,
+				value: data["post_SelType5_val"] as string,
+				label: data["post_SelType6_val"] as string,
+				dataId: data["post_SelType7_val"] as string
 		};
 		const context: EventContext = JSONFile.merge(crrt.context, postcon);
+
+		// checkboxの状態からrequiredItemsを構築（チェックありかつ値があるもののみtrue）
+		const requiredItems: Record<string, boolean> = {};
+		requiredItems["id"] = (data["post_SelType1"] === "1") && !!(data["post_SelType1_val"] as string)?.trim();
+		requiredItems["text"] = (data["post_SelType2"] === "1") && !!(data["post_SelType2_val"] as string)?.trim();
+		requiredItems["name"] = (data["post_SelType3"] === "1") && !!(data["post_SelType3_val"] as string)?.trim();
+		requiredItems["type"] = (data["post_SelType4"] === "1") && !!(data["post_SelType4_val"] as string)?.trim();
+		requiredItems["value"] = (data["post_SelType5"] === "1") && !!(data["post_SelType5_val"] as string)?.trim();
+		requiredItems["label"] = (data["post_SelType6"] === "1") && !!(data["post_SelType6_val"] as string)?.trim();
+		requiredItems["dataId"] = (data["post_SelType7"] === "1") && !!(data["post_SelType7_val"] as string)?.trim();
+		const newSelector1 = this._generateTextSelector(crrt.selector1, context, requiredItems);
+
+		// requiredSelectorsの状態を構築
+		const requiredSelectors: Record<string, boolean> = {};
+		requiredSelectors["selector1"] = (data["post_Enable1"] === "1");
+		requiredSelectors["selector2"] = (data["post_Enable2"] === "1");
+		
 		const post = {
 			params: data["post_Enter"] as string,
 			context: context,
-			selType: data["post_SelType"] as number,
-			selector1: data["post_Selector1"] as string,
+			selector1: newSelector1,
 			selector2: data["post_Selector2"] as string,
-			enable1: data["post_Enable1"] as boolean,
-			enable2: data["post_Enable1"] as boolean
+			requiredItems: requiredItems,
+			requiredSelectors: requiredSelectors,
+			scripts: ""
 		};
 		const op: Operation = JSONFile.merge(crrt, post);
-		//const op: Operation = Object.assign({}, crrt, Object.fromEntries(
-		//	Object.entries(post).filter(([key]) => key in crrt)
-		//));
+		this.steps_.set(op.id, op);
+		this._optimize();
+		await this._refresh();
+
 		const str = data["post_id"]
-			+ "/" + data["post_SelType"]
-			+ "/" + data["post_SelType1_val"]
-			+ "/" + data["post_SelType2_val"]
-			+ "/" + data["post_SelType3_val"]
-			+ "/" + data["post_Value"]
-			+ "/" + data["post_Label"]
-			+ "/" + data["post_DataId"]
-			+ "/" + data["post_Enter"]
-			+ "/" + data["post_Enable1"]
-			+ "/" + data["post_Enable2"]
-			+ "/" + data["post_Selector1"]
-			+ "/" + data["post_Selector2"];
+			+ "/" + data["post_SelType1_val"] + "/" + data["post_SelType2_val"] + "/" + data["post_SelType3_val"] + "/" + data["post_SelType4_val"]
+			+ "/" + data["post_SelType5_val"] + "/" + data["post_SelType6_val"] + "/" + data["post_SelType7_val"]
+			+ "/" + data["post_Enter"] + "/" + data["post_Selector1"] + "/" + data["post_Selector2"]
+			+ "/" + data["post_SelType1"] + "/" + data["post_SelType2"] + "/" + data["post_SelType3"] + "/" + data["post_SelType4"]
+			+ "/" + data["post_SelType5"] + "/" + data["post_SelType6"] + "/" + data["post_SelType7"]
+			+ "/" + data["post_Enable1"] + "/" + data["post_Enable2"];
 		Exception.log(str);
 		Exception.log(op);
 		return 0;
+	}
+
+/*---------------------------------------------------------------------------*
+ * private methods for Selector Generation
+ *---------------------------------------------------------------------------*/
+	// 最後の//以下を新しくgenerateしたものに置き換える
+	private _generateTextSelector(orgSelector: string, context: EventContext, requiredItems: Record<string, boolean>): string{
+		const DES: string = "//";
+		const attributeMap: Record<string, string> = {
+			id: `@id="${context.id}"`,
+			text: `text()="${context.text}"`,
+			name: `name="${context.name}"`,
+			type: `@type="${context.type}"`,
+			value: `@value="${context.value}"`,
+			label: `@aria-label="${context.label}"`,
+			dataId: `@data-id="${context.dataId}"`
+		};
+
+		// 新しいセレクタ部分を生成
+		let newPart = `${context.tagName}`;
+		for(const [key, value] of Object.entries(requiredItems)){
+			if((value)&&(key in attributeMap)){
+				newPart += `[${attributeMap[key]}]`;
+			}
+		}
+
+		// 元のselectorの最後の//を見つけて、それ以降を新しいセレクタ部分で置き換える
+		const index = orgSelector.lastIndexOf(DES);
+		if(index === -1) return DES + newPart;
+		const prefix = orgSelector.substring(0, index + 2);
+		return prefix + newPart;
 	}
 
 /*---------------------------------------------------------------------------*

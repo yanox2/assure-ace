@@ -30,10 +30,10 @@ declare global{
 
 	interface EventContext{
 		tagName: string;
-		inputType: string;
 		id: string;
 		text: string;
 		name: string;
+		type: string;
 		value: string;
 		label: string;
 		dataId: string;
@@ -49,9 +49,10 @@ declare global{
 		eventType: string;
 		params: string;
 		context: EventContext|null;
-		requiredItems: Map<string, boolean>|null;
 		selector1: string;
 		selector2: string;
+		requiredItems: Record<string, boolean>|null;
+		requiredSelectors: Record<string, boolean>|null;
 		scripts: string;
 	}
 }

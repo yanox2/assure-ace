@@ -101,7 +101,10 @@ class AppWindow extends BaseWindow{
 		ipcMain.handle("editTestStep", async (e, postData: string) => {
 			const data: Record<string, unknown> = Object.fromEntries(new URLSearchParams(postData));
 			const rc: number = await this.builder_.editTestStep(data);
-			const res: IPCResponse = { rcode:0, message:"テストステップを編集しました。" };
+			let res: IPCResponse = { rcode:0, message:"テストステップを編集しました。" };
+			if(rc != 0){
+				res = { rcode:rc, message:"予期せぬ原因により編集に失敗しました。" };
+			}
 			return res;
 		});
 
